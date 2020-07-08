@@ -27,8 +27,8 @@ async function run() {
       state: incompleteTaskListItem === 0 ? "success" : "error",
       description: incompleteTaskListItem === 0
         ? "Ready to merge"
-        : `${incompleteTaskListItem} contributor requirements still to do`,
-      context: "Actions TODO"
+        : `${incompleteTaskListItem} requirements to do`,
+      context: "Kaizen Contributor"
     });
   } catch (error) {
     core.setFailed(error.message);
