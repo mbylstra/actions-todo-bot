@@ -1,5 +1,4 @@
-# GitHub Actions TODO Bot
-
+# Kaizen Contributor Checklist
 This action parses PR description and set commit status to success if there are no unfilled checkbox.
 
 ## Using the Action
@@ -9,7 +8,7 @@ Create a new workflow YAML file under `.github/workflows/` folder.
 Example:
 
 ```
-name: TODO Bot
+name: Kaizen Contributor Checklist
 
 on:
   pull_request:
@@ -21,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: adriangodong/actions-todo-bot@1.0.0
+    - uses: mbylstra/kaizen-contributor-checklist@1.0.0
       with:
         repo-token: ${{ secrets.GITHUB_TOKEN }}
 ```

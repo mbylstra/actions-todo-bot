@@ -1,8 +1,8 @@
 {
-  "name": "node12-template-action",
+  "name": "kaizen-contributor-checklist",
   "version": "0.0.0",
   "private": true,
-  "description": "Node 12 template action",
+  "description": "Kaizen Contributor Checklist: checklist checking bot for Github (TODO)",
   "main": "lib/main.js",
   "scripts": {
     "build": "tsc",
@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/actions/node12-template.git"
+    "url": "TODO"
   },
   "keywords": [
     "actions",
