@@ -27,8 +27,7 @@ async function run() {
       state: incompleteTaskListItem === 0 ? "success" : "error",
       description: incompleteTaskListItem === 0
         ? "Ready to merge"
-        : `${incompleteTaskListItem} requirements to do`,
-      context: "Kaizen Contributor"
+        : `${incompleteTaskListItem} requirements to do (first line? and this is a really long one to see what happens. Adding more text here because it needs to be really really really long")`
     });
     await client.repos.createStatus({
       owner: context.issue.owner,
