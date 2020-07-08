@@ -5,14 +5,14 @@ on:
     types: [opened, synchronize, reopened, edited]
 
 jobs:
-  # check:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #   - uses: adriangodong/actions-todo-bot@1.0.1
-  #     with:
-  #       repo-token: ${{ secrets.GITHUB_TOKEN }}
+  check:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: adriangodong/actions-todo-bot@1.0.1
+      with:
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
 
-  check: # make sure the action works on a clean machine without building
+  test: # make sure the action works on a clean machine without building
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
