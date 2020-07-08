@@ -9,7 +9,7 @@ Create a new workflow YAML file under `.github/workflows/` folder.
 Example:
 
 ```
-name: TODO Bot
+name: Kaizen Contributor Checklist
 
 on:
   pull_request:

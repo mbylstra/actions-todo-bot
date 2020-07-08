@@ -25,10 +25,9 @@ async function run() {
       repo: context.issue.repo,
       sha: pull_request.head.sha,
       state: incompleteTaskListItem === 0 ? "success" : "error",
-      target_url: "https://github.com/adriangodong/actions-todo-bot",
       description: incompleteTaskListItem === 0
         ? "Ready to merge"
-        : `(customised) Found ${incompleteTaskListItem} unfinished task(s)`,
+        : `${incompleteTaskListItem} contributor requirements still to do`,
       context: "Actions TODO"
     });
   } catch (error) {
