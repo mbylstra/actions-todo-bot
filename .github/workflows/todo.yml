@@ -5,19 +5,20 @@ on:
     types: [opened, synchronize, reopened, edited]
 
 jobs:
-  check:
+  # check:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #   - uses: adriangodong/actions-todo-bot@1.0.1
+  #     with:
+  #       repo-token: ${{ secrets.GITHUB_TOKEN }}
 
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: adriangodong/actions-todo-bot@1.0.1
-      with:
-        repo-token: ${{ secrets.GITHUB_TOKEN }}
-
-  test: # make sure the action works on a clean machine without building
+  check: # make sure the action works on a clean machine without building
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
+    - run: |
+        npm install
     - uses: ./
       with:
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
         milliseconds: 1000
