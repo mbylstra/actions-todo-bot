@@ -28,7 +28,7 @@ async function run() {
       target_url: "https://github.com/adriangodong/actions-todo-bot",
       description: incompleteTaskListItem === 0
         ? "Ready to merge"
-        : `Found ${incompleteTaskListItem} unfinished task(s)`,
+        : `(customised) Found ${incompleteTaskListItem} unfinished task(s)`,
       context: "Actions TODO"
     });
   } catch (error) {
