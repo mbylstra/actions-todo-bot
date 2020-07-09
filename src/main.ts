@@ -118,3 +118,18 @@ export function filterByWhitelist(
     whitelist.includes(description)
   );
 }
+
+type GithubCheckSpec = { description: string; success: boolean };
+export function getGithubCheckSpecs(
+  checklistItems: Array<ChecklistItem>
+): Array<GithubCheckSpec> {
+  const failedItems = checklistItems.filter(({ checked }) => !checked);
+  if (failedItems.length >= 1) {
+    return failedItems.map(({ description }) => ({
+      description: truncateDescriptionToMeetGithubRequirements(description),
+      success: false
+    }));
+  } else {
+    return [{ description: "All tasks done", success: true }];
+  }
+}

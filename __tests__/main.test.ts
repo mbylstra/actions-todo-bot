@@ -2,7 +2,8 @@ import {
   truncateDescriptionToMeetGithubRequirements,
   parseMarkdownChecklistItems,
   parseMarkdownChecklistItem,
-  filterByWhitelist
+  filterByWhitelist,
+  getGithubCheckSpecs
 } from "../src/main";
 
 describe("parseMarkdownChecklistItems", () => {
@@ -72,6 +73,38 @@ describe("filterByWhitelist", () => {
       {
         description: "keep me too ignoring whitespace",
         checked: true
+      }
+    ]);
+  });
+});
+
+describe("getGithubCheckSpecs", () => {
+  it("returns a single success spec if all checklist items are checked", async () => {
+    const checklistItems = [
+      { description: "item 1", checked: true },
+      { description: "item 2", checked: true }
+    ];
+    expect(getGithubCheckSpecs(checklistItems)).toEqual([
+      {
+        description: "All tasks done",
+        success: true
+      }
+    ]);
+  });
+  it("returns one failed spec for each unchecked item", async () => {
+    const checklistItems = [
+      { description: "item 1", checked: true },
+      { description: "item 2", checked: false },
+      { description: "item 3", checked: false }
+    ];
+    expect(getGithubCheckSpecs(checklistItems)).toEqual([
+      {
+        description: "item 2",
+        success: false
+      },
+      {
+        description: "item 3",
+        success: false
       }
     ]);
   });
