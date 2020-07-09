@@ -1,4 +1,49 @@
-import { truncateDescriptionToMeetGithubRequirements } from "../src/main";
+import {
+  truncateDescriptionToMeetGithubRequirements,
+  parseMarkdownChecklistItems,
+  parseMarkdownChecklistItem
+} from "../src/main";
+
+describe("parseMarkdownChecklistItems", () => {
+  it("correctly parses markdown for checklist items", async () => {
+    const markdown = [
+      "- [ ] unchecked checklist item 1",
+      "- [x] checked checklist item 2",
+      "not a checklist item"
+    ].join("\n");
+    expect(parseMarkdownChecklistItems(markdown)).toEqual([
+      {
+        description: "unchecked checklist item 1",
+        checked: false
+      },
+      {
+        description: "checked checklist item 2",
+        checked: true
+      }
+    ]);
+  });
+});
+
+describe("parseMarkdownChecklistItem", () => {
+  it("correctly parses an unchecked item", async () => {
+    const markdown = "- [ ] unchecked checklist item 1";
+    expect(parseMarkdownChecklistItem(markdown)).toMatchObject({
+      description: "unchecked checklist item 1",
+      checked: false
+    });
+  });
+  it("correctly parses a checked item", async () => {
+    const markdown = "- [x] checked checklist item 1";
+    expect(parseMarkdownChecklistItem(markdown)).toMatchObject({
+      description: "checked checklist item 1",
+      checked: true
+    });
+  });
+  it("returns null if not a checklist item", async () => {
+    const markdown = "-[x] not actually a checklist item";
+    expect(parseMarkdownChecklistItem(markdown)).toBeNull();
+  });
+});
 
 describe("truncateDescriptionToMeetGithubRequirements", () => {
   it("truncates the string to less than 140 characters", async () => {

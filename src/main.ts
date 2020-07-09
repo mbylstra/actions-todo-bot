@@ -84,3 +84,28 @@ export function truncateDescriptionToMeetGithubRequirements(
   const maxGithubCheckDescriptionLength = 140;
   return description.slice(0, maxGithubCheckDescriptionLength);
 }
+
+type ChecklistItem = { description: string; checked: boolean };
+
+export function parseMarkdownChecklistItems(
+  markdown: string
+): Array<ChecklistItem> {
+  const lines = markdown.split(/\r?\n/);
+  return lines.map(parseMarkdownChecklistItem).filter(notNull);
+}
+
+function notNull<TValue>(value: TValue | null): value is TValue {
+  return value !== null;
+}
+
+export function parseMarkdownChecklistItem(
+  markdown: string
+): (ChecklistItem | null) {
+  const regex = /^\- \[( |x)\] (.*)/;
+  const matches = regex.exec(markdown);
+  if (matches) {
+    return { description: matches[2], checked: matches[1] === "x" };
+  } else {
+    return null;
+  }
+}
