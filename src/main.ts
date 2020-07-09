@@ -20,18 +20,21 @@ async function run() {
 
     const incompleteTaskListItem = getIncompleteCount(pull_request.body || "");
 
-    const maxDescriptionExample =
-      "012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789";
+    // const maxDescriptionExample =
+    //   "012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789";
 
+    const maxDescriptionExample =
+      "0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789";
     await client.repos.createStatus({
       owner: context.issue.owner,
       repo: context.issue.repo,
       sha: pull_request.head.sha,
       state: incompleteTaskListItem === 0 ? "success" : "error",
-      description: maxDescriptionExample
+      description: maxDescriptionExample,
       // description: incompleteTaskListItem === 0
       //   ? "Ready to merge"
       //   : `${incompleteTaskListItem} requirements to do (first line? and this is a really long one to see what happens. Adding more text here because it needs to be really really really long")`
+      context: "Kaizen Contributor"
     });
     await client.repos.createStatus({
       owner: context.issue.owner,
@@ -74,3 +77,10 @@ function getIncompleteCount(pullRequestBody: string) {
 }
 
 run();
+
+export function truncateDescriptionToMeetGithubRequirements(
+  description: string
+): string {
+  const maxGithubCheckDescriptionLength = 140;
+  return description.slice(0, maxGithubCheckDescriptionLength);
+}
