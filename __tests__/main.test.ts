@@ -79,19 +79,7 @@ describe("filterByWhitelist", () => {
 });
 
 describe("getGithubCheckSpecs", () => {
-  it("returns a single success spec if all checklist items are checked", async () => {
-    const checklistItems = [
-      { description: "item 1", checked: true },
-      { description: "item 2", checked: true }
-    ];
-    expect(getGithubCheckSpecs(checklistItems)).toEqual([
-      {
-        description: "All tasks done",
-        success: true
-      }
-    ]);
-  });
-  it("returns one failed spec for each unchecked item", async () => {
+  it("returns the correct specs for each item", async () => {
     const checklistItems = [
       { description: "item 1", checked: true },
       { description: "item 2", checked: false },
@@ -99,12 +87,19 @@ describe("getGithubCheckSpecs", () => {
     ];
     expect(getGithubCheckSpecs(checklistItems)).toEqual([
       {
+        description: "item 1",
+        success: true,
+        id: 1
+      },
+      {
         description: "item 2",
-        success: false
+        success: false,
+        id: 2
       },
       {
         description: "item 3",
-        success: false
+        success: false,
+        id: 3
       }
     ]);
   });

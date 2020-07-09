@@ -1,82 +1,55 @@
 import * as core from "@actions/core";
 import * as github from "@actions/github";
 
-// this file has been edited
-
-type Args = {
-  repoToken: string;
-};
+const whitelist = [
+  "I have gotten a design review from someone else if this introduces user facing changes",
+  "I have gotten someone else to QA this if the changes are significant",
+  "I or someone else has QA'ed this in IE11 if it feels necessary"
+];
 
 async function run() {
   try {
     const args = getAndValidateArgs();
     const client = new github.GitHub(args.repoToken);
-    const context = github.context;
-    const pull_request = context.payload.pull_request;
-
-    if (!pull_request) {
+    const pullRequest = github.context.payload.pull_request;
+    if (!pullRequest) {
       throw new Error("Payload is missing pull_request.");
     }
-
-    const incompleteTaskListItem = getIncompleteCount(pull_request.body || "");
-
-    // const maxDescriptionExample =
-    //   "012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789";
-
-    const maxDescriptionExample =
-      "0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789";
-    await client.repos.createStatus({
-      owner: context.issue.owner,
-      repo: context.issue.repo,
-      sha: pull_request.head.sha,
-      state: incompleteTaskListItem === 0 ? "success" : "error",
-      description: maxDescriptionExample,
-      // description: incompleteTaskListItem === 0
-      //   ? "Ready to merge"
-      //   : `${incompleteTaskListItem} requirements to do (first line? and this is a really long one to see what happens. Adding more text here because it needs to be really really really long")`
-      context: "Kaizen Contributor"
-    });
-    await client.repos.createStatus({
-      owner: context.issue.owner,
-      repo: context.issue.repo,
-      sha: pull_request.head.sha,
-      state: incompleteTaskListItem === 0 ? "success" : "error",
-      description: maxDescriptionExample,
-      // description: incompleteTaskListItem === 0
-      //   ? "Ready to merge"
-      //   : `${incompleteTaskListItem} requirements to do (second line? and this is a really long one to see what happens. Adding more text here because it needs to be really really really long")`,
-      context: "Kaizen Contributor"
-    });
+    const checklistItems = filterByWhitelist(
+      parseMarkdownChecklistItems(pullRequest.body || ""),
+      whitelist
+    );
+    const specs = getGithubCheckSpecs(checklistItems);
+    let i = 1;
+    for (const spec of specs) {
+      const context = `Kaizen Contributor TODO (${i})`;
+      await createStatus({ pullRequest, client, spec, context });
+      i++;
+    }
   } catch (error) {
     core.setFailed(error.message);
   }
 }
+async function createStatus({ pullRequest, client, spec, context }) {
+  return client.repos.createStatus({
+    owner: github.context.issue.owner,
+    repo: github.context.issue.repo,
+    sha: pullRequest.head.sha,
+    state: spec.success ? "success" : "error",
+    description: spec.description,
+    context: context
+  });
+}
+
+type Args = {
+  repoToken: string;
+};
 
 function getAndValidateArgs(): Args {
   return {
     repoToken: core.getInput("repo-token", { required: true })
   };
 }
-
-function getIncompleteCount(pullRequestBody: string) {
-  if (!pullRequestBody) {
-    return 0;
-  }
-  const pullRequestBodyLines = pullRequestBody.match(/[^\r\n]+/g);
-  if (pullRequestBodyLines === null) {
-    return 0;
-  }
-
-  let incompleteCount = 0;
-  for (const line of pullRequestBodyLines) {
-    if (line.trim().startsWith("- [ ]")) {
-      incompleteCount++;
-    }
-  }
-  return incompleteCount;
-}
-
-run();
 
 export function truncateDescriptionToMeetGithubRequirements(
   description: string
@@ -119,17 +92,19 @@ export function filterByWhitelist(
   );
 }
 
-type GithubCheckSpec = { description: string; success: boolean };
+type GithubCheckSpec = { description: string; success: boolean; id: number };
 export function getGithubCheckSpecs(
   checklistItems: Array<ChecklistItem>
 ): Array<GithubCheckSpec> {
-  const failedItems = checklistItems.filter(({ checked }) => !checked);
-  if (failedItems.length >= 1) {
-    return failedItems.map(({ description }) => ({
-      description: truncateDescriptionToMeetGithubRequirements(description),
-      success: false
-    }));
-  } else {
-    return [{ description: "All tasks done", success: true }];
-  }
+  return checklistItems.map(({ description, checked }, index) => ({
+    description: truncateDescriptionToMeetGithubRequirements(description),
+    success: checked,
+    id: index + 1
+  }));
+
+  // } else {
+  // return [{ description: "All tasks done", success: true, id: 2 }];
+  // }
 }
+
+run();
