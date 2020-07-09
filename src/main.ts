@@ -104,8 +104,17 @@ export function parseMarkdownChecklistItem(
   const regex = /^\- \[( |x)\] (.*)/;
   const matches = regex.exec(markdown);
   if (matches) {
-    return { description: matches[2], checked: matches[1] === "x" };
+    return { description: matches[2].trim(), checked: matches[1] === "x" };
   } else {
     return null;
   }
+}
+
+export function filterByWhitelist(
+  checklistItems: Array<ChecklistItem>,
+  whitelist: string[]
+): Array<ChecklistItem> {
+  return checklistItems.filter(({ description }) =>
+    whitelist.includes(description)
+  );
 }

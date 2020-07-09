@@ -1,7 +1,8 @@
 import {
   truncateDescriptionToMeetGithubRequirements,
   parseMarkdownChecklistItems,
-  parseMarkdownChecklistItem
+  parseMarkdownChecklistItem,
+  filterByWhitelist
 } from "../src/main";
 
 describe("parseMarkdownChecklistItems", () => {
@@ -51,5 +52,27 @@ describe("truncateDescriptionToMeetGithubRequirements", () => {
     expect(
       truncateDescriptionToMeetGithubRequirements(testString).length
     ).toBeLessThanOrEqual(140);
+  });
+});
+
+describe("filterByWhitelist", () => {
+  it("keeps only wanted wanted items", async () => {
+    const whitelist = ["keep me", "keep me too ignoring whitespace"];
+    const markdown = [
+      "- [ ] keep me",
+      "- [x]     keep me too ignoring whitespace      ",
+      "- [ ] ignore me"
+    ].join("\n");
+    const checklistItems = parseMarkdownChecklistItems(markdown);
+    expect(filterByWhitelist(checklistItems, whitelist)).toEqual([
+      {
+        description: "keep me",
+        checked: false
+      },
+      {
+        description: "keep me too ignoring whitespace",
+        checked: true
+      }
+    ]);
   });
 });
