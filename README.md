@@ -1,5 +1,6 @@
 # Kaizen Contributor Checklist
-This action parses PR description and set commit status to success if there are no unfilled checkbox.
+This action parses PR description and set commit status to success if there are no unfilled checkboxes
+related to Kaizen contributions.
 
 ## Using the Action
 
@@ -24,14 +25,3 @@ jobs:
       with:
         repo-token: ${{ secrets.GITHUB_TOKEN }}
 ```
-
-## Development / Release
-
-* The default target branch for code changes is `master`
-* To prepare a test version:
-  * Fork the target commit into a branch
-  * Modify .gitignore file to not exclude `node_modules` folder
-  * Run `npm ci` and `npm run build`
-  * Commit all the changes
-* To release a version:
-  * Tag the target commit from the test branch
