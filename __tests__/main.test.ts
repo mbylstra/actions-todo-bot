@@ -2,7 +2,7 @@ import {
   truncateDescriptionToMeetGithubRequirements,
   parseMarkdownChecklistItems,
   parseMarkdownChecklistItem,
-  filterByWhitelist,
+  joinWithWhitelist,
   getGithubCheckSpecs
 } from "../src/main";
 
@@ -56,8 +56,8 @@ describe("truncateDescriptionToMeetGithubRequirements", () => {
   });
 });
 
-describe("filterByWhitelist", () => {
-  it("keeps only wanted wanted items", async () => {
+describe("joinWithWhitelist", () => {
+  it("keeps only wanted whitelisted items", async () => {
     const whitelist = ["keep me", "keep me too ignoring whitespace"];
     const markdown = [
       "- [ ] keep me",
@@ -65,13 +65,32 @@ describe("filterByWhitelist", () => {
       "- [ ] ignore me"
     ].join("\n");
     const checklistItems = parseMarkdownChecklistItems(markdown);
-    expect(filterByWhitelist(checklistItems, whitelist)).toEqual([
+    expect(joinWithWhitelist(checklistItems, whitelist)).toEqual([
       {
         description: "keep me",
         checked: false
       },
       {
         description: "keep me too ignoring whitespace",
+        checked: true
+      }
+    ]);
+  });
+
+  it("adds whitelist items that are missing and set to true", async () => {
+    const whitelist = ["whitelist item 1", "missing whitelist item"];
+    const markdown = [
+      "- [ ] whitelist item 1",
+      "- [ ] not a whitelist item"
+    ].join("\n");
+    const checklistItems = parseMarkdownChecklistItems(markdown);
+    expect(joinWithWhitelist(checklistItems, whitelist)).toEqual([
+      {
+        description: "whitelist item 1",
+        checked: false
+      },
+      {
+        description: "missing whitelist item",
         checked: true
       }
     ]);

@@ -2,9 +2,9 @@ import * as core from "@actions/core";
 import * as github from "@actions/github";
 
 const whitelist = [
-  "I have gotten a design review from someone else if this introduces user facing changes",
+  "I have gotten a design review from a designer if this introduces user facing changes",
   "I have gotten someone else to QA this if the changes are significant",
-  "I or someone else has QA'ed this in IE11 if it feels necessary"
+  "I or someone else has QA'ed this in IE11 if it feels worth it"
 ];
 
 async function run() {
@@ -15,7 +15,7 @@ async function run() {
     if (!pullRequest) {
       throw new Error("Payload is missing pull_request.");
     }
-    const checklistItems = filterByWhitelist(
+    const checklistItems = joinWithWhitelist(
       parseMarkdownChecklistItems(pullRequest.body || ""),
       whitelist
     );
@@ -83,13 +83,33 @@ export function parseMarkdownChecklistItem(
   }
 }
 
-export function filterByWhitelist(
+export function joinWithWhitelist(
   checklistItems: Array<ChecklistItem>,
   whitelist: string[]
 ): Array<ChecklistItem> {
-  return checklistItems.filter(({ description }) =>
-    whitelist.includes(description)
-  );
+  return whitelist.map(whitelistDescription => {
+    const checklistItem = findChecklistItem(
+      checklistItems,
+      whitelistDescription
+    );
+    if (checklistItem != null) {
+      return checklistItem as ChecklistItem;
+    } else {
+      /* Missing whitelist checkbox items are always set to true. This is to avoid an
+       * edge case where it would be impossible to merge the PR: if the PR initially
+       * has unchecked checkboxes, and then they are deleted from the description, there
+       * will be no way to set the already generated Github Status to success. Setting
+       * deleted checklist items to success will make the PR mergeable*/
+      return { description: whitelistDescription, checked: true };
+    }
+  });
+}
+
+function findChecklistItem(
+  checklistItems: Array<ChecklistItem>,
+  description: string
+): ChecklistItem | undefined {
+  return checklistItems.find(item => item.description === description);
 }
 
 type GithubCheckSpec = { description: string; success: boolean; id: number };
@@ -101,10 +121,6 @@ export function getGithubCheckSpecs(
     success: checked,
     id: index + 1
   }));
-
-  // } else {
-  // return [{ description: "All tasks done", success: true, id: 2 }];
-  // }
 }
 
 run();
