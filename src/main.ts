@@ -1,8 +1,8 @@
 import * as core from "@actions/core";
 import * as github from "@actions/github";
 
-const whitelist = [
-  "I have gotten a design review from a designer if this introduces user facing changes",
+export const whitelist = [
+  "I have gotten a design review from someone else if this introduces user facing changes",
   "I have gotten someone else to QA this if the changes are significant",
   "I or someone else has QA'ed this in IE11 if it feels worth it"
 ];
@@ -105,11 +105,13 @@ export function joinWithWhitelist(
   });
 }
 
-function findChecklistItem(
+export function findChecklistItem(
   checklistItems: Array<ChecklistItem>,
   description: string
 ): ChecklistItem | undefined {
-  return checklistItems.find(item => item.description === description);
+  return checklistItems.find(item => {
+    return item.description.trim().startsWith(description.trim());
+  });
 }
 
 type GithubStatusSpec = { description: string; success: boolean; id: number };

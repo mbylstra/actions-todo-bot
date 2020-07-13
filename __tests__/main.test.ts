@@ -3,7 +3,9 @@ import {
   parseMarkdownChecklistItems,
   parseMarkdownChecklistItem,
   joinWithWhitelist,
-  getGithubCheckSpecs
+  getGithubStatusSpecs,
+  findChecklistItem,
+  whitelist
 } from "../src/main";
 
 describe("parseMarkdownChecklistItems", () => {
@@ -104,7 +106,7 @@ describe("getGithubCheckSpecs", () => {
       { description: "item 2", checked: false },
       { description: "item 3", checked: false }
     ];
-    expect(getGithubCheckSpecs(checklistItems)).toEqual([
+    expect(getGithubStatusSpecs(checklistItems)).toEqual([
       {
         description: "item 1",
         success: true,
@@ -118,6 +120,60 @@ describe("getGithubCheckSpecs", () => {
       {
         description: "item 3",
         success: false,
+        id: 3
+      }
+    ]);
+  });
+});
+
+describe("findChecklistItem", () => {
+  it("returns checklist item if it exists", async () => {
+    const checklistItems = [
+      { description: "item 1", checked: false },
+      { description: "item 2", checked: false },
+      { description: "item 3", checked: true }
+    ];
+    expect(findChecklistItem(checklistItems, "item 1")).toEqual({
+      description: "item 1",
+      checked: false
+    });
+  });
+});
+
+const realExample = `
+- [ ] I have gotten a design review from someone else if this introduces user facing changes
+- [ ] I have gotten someone else to QA this if the changes are significant
+- [x] I or someone else has QA'ed this in IE11 if it feels necessary
+
+### Other stuff
+- [x] This is not a whitelisted Kaizen contributor item
+`;
+
+describe("integration test", () => {
+  it("tests the main functions together", async () => {
+    const checklistItems = joinWithWhitelist(
+      parseMarkdownChecklistItems(realExample),
+      whitelist
+    );
+    const specs = getGithubStatusSpecs(checklistItems);
+
+    expect(specs).toEqual([
+      {
+        description:
+          "I have gotten a design review from someone else if this introduces user facing changes",
+        success: false,
+        id: 1
+      },
+      {
+        description:
+          "I have gotten someone else to QA this if the changes are significant",
+        success: false,
+        id: 2
+      },
+      {
+        description:
+          "I or someone else has QA'ed this in IE11 if it feels worth it",
+        success: true,
         id: 3
       }
     ]);
