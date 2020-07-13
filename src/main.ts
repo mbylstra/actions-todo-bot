@@ -19,18 +19,18 @@ async function run() {
       parseMarkdownChecklistItems(pullRequest.body || ""),
       whitelist
     );
-    const specs = getGithubCheckSpecs(checklistItems);
+    const specs = getGithubStatusSpecs(checklistItems);
     let i = 1;
     for (const spec of specs) {
       const context = `Kaizen Contributor TODO (${i})`;
-      await createStatus({ pullRequest, client, spec, context });
+      await createGithubStatus({ pullRequest, client, spec, context });
       i++;
     }
   } catch (error) {
     core.setFailed(error.message);
   }
 }
-async function createStatus({ pullRequest, client, spec, context }) {
+async function createGithubStatus({ pullRequest, client, spec, context }) {
   return client.repos.createStatus({
     owner: github.context.issue.owner,
     repo: github.context.issue.repo,
@@ -112,10 +112,10 @@ function findChecklistItem(
   return checklistItems.find(item => item.description === description);
 }
 
-type GithubCheckSpec = { description: string; success: boolean; id: number };
-export function getGithubCheckSpecs(
+type GithubStatusSpec = { description: string; success: boolean; id: number };
+export function getGithubStatusSpecs(
   checklistItems: Array<ChecklistItem>
-): Array<GithubCheckSpec> {
+): Array<GithubStatusSpec> {
   return checklistItems.map(({ description, checked }, index) => ({
     description: truncateDescriptionToMeetGithubRequirements(description),
     success: checked,
